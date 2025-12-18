@@ -1,0 +1,12 @@
+bin/
+obj/
+*.user
+*.suo
+*.vscode/
+*.vs/
+*.mdf
+*.ldf
+secrets.json
+*.log
+*.nupkg
+packages/
