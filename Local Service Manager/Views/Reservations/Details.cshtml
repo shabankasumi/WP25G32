@@ -1,0 +1,57 @@
+@model Local_Service_Manager.Models.Reservation
+
+@{
+    ViewData["Title"] = "Reservation Details";
+    string badgeClass = Model.Status switch
+    {
+        "Approved" => "bg-success",
+        "Cancelled" => "bg-danger",
+        _ => "bg-warning text-dark"
+    };
+}
+
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+    <h2 class="mb-0">@ViewData["Title"]</h2>
+    <a class="btn btn-outline-light" asp-action="Index">Back to list</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="opacity-75 small">User</div>
+                <div class="fw-semibold">@Model.User?.Email</div>
+            </div>
+            <div class="col-md-6">
+                <div class="opacity-75 small">Service</div>
+                <div class="fw-semibold">@Model.Service?.Name</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="opacity-75 small">Date</div>
+                <div>@Model.ReservationDate.ToString("yyyy-MM-dd")</div>
+            </div>
+            <div class="col-md-4">
+                <div class="opacity-75 small">Status</div>
+                <span class="badge badge-status @badgeClass">@Model.Status</span>
+            </div>
+            <div class="col-md-4">
+                <div class="opacity-75 small">Phone</div>
+                <div>@Model.PhoneNumber</div>
+            </div>
+
+            <div class="col-12">
+                <div class="opacity-75 small">Location</div>
+                <div>@Model.Street, @Model.City @Model.Zip</div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Notes))
+            {
+                <div class="col-12">
+                    <div class="opacity-75 small">Notes</div>
+                    <div>@Model.Notes</div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

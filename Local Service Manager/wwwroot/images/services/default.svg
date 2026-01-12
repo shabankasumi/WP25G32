@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2c3e50"/>
+      <stop offset="1" stop-color="#111"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#g)"/>
+  <g fill="#fff" opacity="0.85" font-family="Arial, Helvetica, sans-serif">
+    <text x="50%" y="45%" text-anchor="middle" font-size="44" font-weight="700">Local Service Manager</text>
+    <text x="50%" y="56%" text-anchor="middle" font-size="20" opacity="0.75">Add Service.ImageUrl to show custom images</text>
+  </g>
+</svg>

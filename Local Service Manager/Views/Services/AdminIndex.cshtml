@@ -1,0 +1,60 @@
+﻿@model IEnumerable<Local_Service_Manager.Models.Service>
+
+@{
+    ViewData["Title"] = "Admin - Services";
+}
+
+<h2>Manage Services</h2>
+
+<form method="get">
+    <input type="text" name="search" value="@ViewData["CurrentSearch"]" placeholder="Search..." />
+    <select name="category">
+        <option value="">All Categories</option>
+        <option value="Transport">Transport</option>
+        <option value="Maintenance">Maintenance</option>
+        <option value="Cleaning">Cleaning</option>
+    </select>
+    <button type="submit">Filter</button>
+</form>
+ <a asp-action="Create" class="btn btn-success mb-3">Add Service</a>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th><a asp-route-sortOrder="@ViewData["NameSort"]">Name</a></th>
+            <th>Category</th>
+            <th><a asp-route-sortOrder="@ViewData["DateSort"]">Created</a></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Category</td>
+                <td>@item.CreatedAt.ToShortDateString()</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div>
+    @for(int i = 1; i <= (int)ViewBag.TotalPages; i++)
+    {
+        if (i == (int)ViewBag.CurrentPage)
+        {
+            <strong>@i</strong>
+        }
+        else
+        {
+            <a href="?page=@i&search=@ViewData["CurrentSearch"]&category=@ViewData["CurrentCategory"]">@i</a>
+        }
+    }
+</div>

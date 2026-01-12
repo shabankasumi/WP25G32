@@ -1,0 +1,74 @@
+﻿@page
+@model Local_Service_Manager.Areas.Identity.Pages.Account.LoginModel
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
+            @Html.AntiForgeryToken()
+
+            <h4>Use your account to log in.</h4>
+            <hr />
+
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email"
+                       class="form-control"
+                       placeholder="Email or Username"
+                       autocomplete="username" />
+                <label asp-for="Input.Email">Email or Username</label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Password"
+                       type="password"
+                       class="form-control"
+                       placeholder="Password"
+                       autocomplete="current-password" />
+                <label asp-for="Input.Password">Password</label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            
+            <div class="form-check mb-3">
+                <input asp-for="Input.RememberMe" class="form-check-input" />
+                <label asp-for="Input.RememberMe" class="form-check-label">
+                    Remember me
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Log in</button>
+        </form>
+    </div>
+
+    <div class="col-md-6">
+        <section>
+            <h4>Don’t have an account?</h4>
+            <hr />
+            <p>
+                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">
+                    Register as a new user
+                </a>
+            </p>
+
+            <p>
+                <a asp-page="./ForgotPassword">
+                    Forgot your password?
+                </a>
+            </p>
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

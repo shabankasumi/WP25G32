@@ -1,0 +1,93 @@
+@model IEnumerable<Local_Service_Manager.Models.Service>
+
+@{
+    ViewData["Title"] = "Available Services";
+    string fallbackImg = Url.Content("~/images/services/default.svg");
+}
+
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+    <h2 class="mb-0">@ViewData["Title"]</h2>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-light" asp-controller="Home" asp-action="Index">Home</a>
+        @if (User.Identity?.IsAuthenticated ?? false)
+        {
+            <a class="btn btn-outline-light" asp-controller="Reservations" asp-action="My">My Reservations</a>
+        }
+    </div>
+</div>
+
+<form class="row g-2 mb-4" method="get">
+    <div class="col-md-4">
+        <input class="form-control" type="text" name="search" value="@ViewData["CurrentSearch"]" placeholder="Search services..." />
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" name="category">
+            <option value="">All Categories</option>
+            <option value="Transport" selected="@(ViewData["CurrentCategory"]?.ToString()=="Transport")">Transport</option>
+            <option value="Maintenance" selected="@(ViewData["CurrentCategory"]?.ToString()=="Maintenance")">Maintenance</option>
+            <option value="Cleaning" selected="@(ViewData["CurrentCategory"]?.ToString()=="Cleaning")">Cleaning</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" name="sortOrder">
+            <option value="" selected="@(string.IsNullOrEmpty(ViewData["CurrentSort"]?.ToString()))">Sort: Name (A-Z)</option>
+            <option value="name_desc" selected="@(ViewData["CurrentSort"]?.ToString()=="name_desc")">Sort: Name (Z-A)</option>
+            <option value="date" selected="@(ViewData["CurrentSort"]?.ToString()=="date")">Sort: Created (oldest)</option>
+            <option value="date_desc" selected="@(ViewData["CurrentSort"]?.ToString()=="date_desc")">Sort: Created (newest)</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100" type="submit">Apply</button>
+    </div>
+</form>
+
+<div class="row g-3">
+    @foreach (var service in Model)
+    {
+        var img = !string.IsNullOrWhiteSpace(service.ImageUrl) ? service.ImageUrl : fallbackImg;
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <img class="card-img-top" src="@img" alt="@service.Name" />
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-start justify-content-between gap-2">
+                        <h5 class="card-title mb-1">@service.Name</h5>
+                        <span class="badge bg-info text-dark">@service.Category</span>
+                    </div>
+                    <p class="card-text opacity-75">@service.Description</p>
+
+                    <div class="mt-auto d-flex gap-2 flex-wrap">
+                        <a class="btn btn-primary"
+                           asp-controller="Reservations"
+                           asp-action="Create"
+                           asp-route-serviceId="@service.Id">
+                            Reserve
+                        </a>
+
+                        <a class="btn btn-outline-light"
+                           asp-controller="ServicePublic"
+                           asp-action="Details"
+                           asp-route-id="@service.Id">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if ((int)ViewBag.TotalPages > 1)
+{
+    <nav class="mt-4" aria-label="Services pages">
+        <ul class="pagination">
+            @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+            {
+                var active = i == (int)ViewBag.CurrentPage ? "active" : "";
+                <li class="page-item @active">
+                    <a class="page-link" href="?page=@i&search=@ViewData["CurrentSearch"]&category=@ViewData["CurrentCategory"]&sortOrder=@ViewData["CurrentSort"]">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

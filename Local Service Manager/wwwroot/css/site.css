@@ -20,3 +20,27 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* Dark-mode polish */
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+
+.card {
+  border: 1px solid rgba(255, 255, 255, .08);
+}
+
+.card-img-top {
+  height: 180px;
+  object-fit: cover;
+}
+
+.badge-status {
+  font-size: .85rem;
+  padding: .45rem .6rem;
+}
+
+.form-text {
+  opacity: .8;
+}

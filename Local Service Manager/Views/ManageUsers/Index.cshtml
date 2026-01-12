@@ -1,0 +1,120 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<IdentityUser>
+
+@{
+    ViewData["Title"] = "Manage Users";
+
+    var currentSearch = ViewData["CurrentSearch"] as string ?? "";
+    var currentSort = ViewData["CurrentSort"] as string ?? "";
+
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+}
+
+<h2>Manage Users</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <a class="btn btn-success" asp-action="Create">Create User</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-6">
+        <input name="search" value="@currentSearch" class="form-control"
+               placeholder="Search email or username..." />
+    </div>
+
+    <div class="col-md-3">
+        <button class="btn btn-primary w-100" type="submit">Search</button>
+    </div>
+
+    <div class="col-md-3">
+        <a class="btn btn-outline-secondary w-100"
+           asp-action="Index">Clear</a>
+    </div>
+
+    <input type="hidden" name="sortOrder" value="@currentSort" />
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                <a asp-action="Index"
+                   asp-route-search="@currentSearch"
+                   asp-route-sortOrder="@ViewData["EmailSort"]"
+                   asp-route-page="1">
+                    Email
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index"
+                   asp-route-search="@currentSearch"
+                   asp-route-sortOrder="@ViewData["UserNameSort"]"
+                   asp-route-page="1">
+                    Username
+                </a>
+            </th>
+            <th>Email Confirmed</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    @foreach (var u in Model ?? Enumerable.Empty<IdentityUser>())
+    {
+        <tr>
+            <td>@u.Email</td>
+            <td>@u.UserName</td>
+            <td>@u.EmailConfirmed</td>
+            <td class="text-end">
+                <a class="btn btn-sm btn-warning"
+                   asp-action="Edit"
+                   asp-route-id="@u.Id">Edit</a>
+
+                <a class="btn btn-sm btn-danger"
+                   asp-action="Delete"
+                   asp-route-id="@u.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@if (totalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-search="@currentSearch"
+                   asp-route-sortOrder="@currentSort"
+                   asp-route-page="@(currentPage - 1)">Prev</a>
+            </li>
+
+            @for (int p = 1; p <= totalPages; p++)
+            {
+                <li class="page-item @(p == currentPage ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-search="@currentSearch"
+                       asp-route-sortOrder="@currentSort"
+                       asp-route-page="@p">@p</a>
+                </li>
+            }
+
+            <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-search="@currentSearch"
+                   asp-route-sortOrder="@currentSort"
+                   asp-route-page="@(currentPage + 1)">Next</a>
+            </li>
+        </ul>
+    </nav>
+}

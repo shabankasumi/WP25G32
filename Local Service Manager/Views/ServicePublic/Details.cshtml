@@ -1,0 +1,41 @@
+@model Local_Service_Manager.Models.Service
+
+@{
+    ViewData["Title"] = "Service Details";
+    string fallbackImg = Url.Content("~/images/services/default.svg");
+    var img = !string.IsNullOrWhiteSpace(Model.ImageUrl) ? Model.ImageUrl : fallbackImg;
+}
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <img class="card-img-top" src="@img" alt="@Model.Name" />
+            <div class="card-body">
+                <span class="badge bg-info text-dark">@Model.Category</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <h2 class="mb-2">@Model.Name</h2>
+        <p class="opacity-75">@Model.Description</p>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="fw-bold mb-2">Ready to book?</h5>
+                <p class="opacity-75 mb-3">
+                    Click Reserve and enter your preferred date, address, and phone number.
+                </p>
+
+                <a class="btn btn-primary"
+                   asp-controller="Reservations"
+                   asp-action="Create"
+                   asp-route-serviceId="@Model.Id">
+                    Reserve
+                </a>
+
+                <a class="btn btn-outline-light ms-2" asp-action="Index">Back to list</a>
+            </div>
+        </div>
+    </div>
+</div>

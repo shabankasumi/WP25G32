@@ -1,0 +1,69 @@
+@model Local_Service_Manager.Models.ViewModels.ReservationCreateVm
+
+@{
+    ViewData["Title"] = "Create Reservation";
+}
+
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+    <h2 class="mb-0">Create reservation</h2>
+    <a class="btn btn-outline-light" asp-controller="ServicePublic" asp-action="Index">Back to services</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <p class="opacity-75 mb-4">Service: <strong>@Model.ServiceName</strong></p>
+
+        <form asp-action="Create" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ServiceId" />
+
+            <div class="col-md-4">
+                <label class="form-label">Preferred date</label>
+                <input asp-for="ReservationDate" type="date" class="form-control" />
+                <span asp-validation-for="ReservationDate" class="text-danger"></span>
+            </div>
+
+            <div class="col-12"><hr class="my-2" /></div>
+
+            <div class="col-md-6">
+                <label class="form-label">Street</label>
+                <input asp-for="Street" class="form-control" />
+                <span asp-validation-for="Street" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">City</label>
+                <input asp-for="City" class="form-control" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Zip</label>
+                <input asp-for="Zip" class="form-control" />
+                <span asp-validation-for="Zip" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Phone number</label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                <div class="form-text">We’ll use this only for this reservation.</div>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label">Notes (optional)</label>
+                <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+                <button class="btn btn-primary" type="submit">Submit reservation</button>
+                <a class="btn btn-outline-light" asp-controller="ServicePublic" asp-action="Index">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
