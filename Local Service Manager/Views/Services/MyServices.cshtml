@@ -1,0 +1,101 @@
+@model IEnumerable<Local_Service_Manager.Models.Service>
+
+@{
+    ViewData["Title"] = "My Services";
+    var categories = ViewBag.Categories as IEnumerable<string> ?? Enumerable.Empty<string>();
+}
+
+<h2>My Services</h2>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-5">
+        <input type="text" name="search" value="@ViewData["CurrentSearch"]" class="form-control" placeholder="Search name or description..." />
+    </div>
+    <div class="col-md-4">
+        <select name="category" class="form-select">
+            <option value="">All Categories</option>
+            @foreach (var c in categories)
+            {
+                <option value="@c" selected="@( (ViewData["CurrentCategory"] as string) == c ? "selected" : null )">@c</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-50">Filter</button>
+        <a asp-action="MyServices" class="btn btn-outline-secondary w-50">Clear</a>
+    </div>
+
+    <input type="hidden" name="sortOrder" value="@ViewData["CurrentSort"]" />
+</form>
+
+<a asp-action="Create" class="btn btn-success mb-3">Add Service</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                <a asp-action="MyServices" asp-route-sortOrder="@ViewData["NameSort"]" asp-route-search="@ViewData["CurrentSearch"]" asp-route-category="@ViewData["CurrentCategory"]">Name</a>
+            </th>
+            <th>Category</th>
+            <th>
+                <a asp-action="MyServices" asp-route-sortOrder="@ViewData["DateSort"]" asp-route-search="@ViewData["CurrentSearch"]" asp-route-category="@ViewData["CurrentCategory"]">Created</a>
+            </th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model ?? Enumerable.Empty<Local_Service_Manager.Models.Service>())
+    {
+        <tr>
+            <td>@item.Name</td>
+            <td>@item.Category</td>
+            <td>@item.CreatedAt.ToShortDateString()</td>
+            <td class="text-end">
+                <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                <a class="btn btn-sm btn-secondary" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@if ((int)(ViewBag.TotalPages ?? 1) > 1)
+{
+    var currentPage = (int)(ViewBag.CurrentPage ?? 1);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+
+    <nav>
+        <ul class="pagination">
+            <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="MyServices"
+                   asp-route-search="@ViewData["CurrentSearch"]"
+                   asp-route-category="@ViewData["CurrentCategory"]"
+                   asp-route-sortOrder="@ViewData["CurrentSort"]"
+                   asp-route-page="@(currentPage - 1)">Prev</a>
+            </li>
+
+            @for (int p = 1; p <= totalPages; p++)
+            {
+                <li class="page-item @(p == currentPage ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="MyServices"
+                       asp-route-search="@ViewData["CurrentSearch"]"
+                       asp-route-category="@ViewData["CurrentCategory"]"
+                       asp-route-sortOrder="@ViewData["CurrentSort"]"
+                       asp-route-page="@p">@p</a>
+                </li>
+            }
+
+            <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="MyServices"
+                   asp-route-search="@ViewData["CurrentSearch"]"
+                   asp-route-category="@ViewData["CurrentCategory"]"
+                   asp-route-sortOrder="@ViewData["CurrentSort"]"
+                   asp-route-page="@(currentPage + 1)">Next</a>
+            </li>
+        </ul>
+    </nav>
+}

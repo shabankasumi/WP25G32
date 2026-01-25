@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Local_Service_Manager.Data;
+using Local_Service_Manager.Models;
+using Local_Service_Manager.Models.ViewModels;
 
 namespace Local_Service_Manager.Controllers
 {
@@ -10,20 +13,34 @@ namespace Local_Service_Manager.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ApplicationDbContext _context;
 
         private const int PageSize = 10;
 
         public ManageUsersController(UserManager<IdentityUser> userManager,
-                                     RoleManager<IdentityRole> roleManager)
+                                     RoleManager<IdentityRole> roleManager,
+                                     ApplicationDbContext context)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _context = context;
         }
 
         // INDEX search,sort,page like Services
-        public async Task<IActionResult> Index(string search, string sortOrder, int page = 1)
+        public async Task<IActionResult> Index(string search, string emailConfirmed, bool onlyWorkers, string sortOrder, int page = 1)
         {
             var q = _userManager.Users.AsQueryable();
+
+            if (emailConfirmed == "confirmed") q = q.Where(u => u.EmailConfirmed);
+            else if (emailConfirmed == "not") q = q.Where(u => !u.EmailConfirmed);
+            ViewData["CurrentEmailConfirmed"] = emailConfirmed ?? "";
+
+            if (onlyWorkers)
+            {
+                var workerIds = _context.UserPermissions.Where(p => p.CanPostServices).Select(p => p.UserId);
+                q = q.Where(u => workerIds.Contains(u.Id));
+            }
+            ViewData["OnlyWorkers"] = onlyWorkers;
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -51,11 +68,41 @@ namespace Local_Service_Manager.Controllers
             var totalPages = (int)Math.Ceiling((double)totalItems / PageSize);
 
             var users = await q.Skip((page - 1) * PageSize).Take(PageSize).ToListAsync();
+            var userIds = users.Select(u => u.Id).ToList();
+
+            // Pull permissions in one query
+            var perms = await _context.UserPermissions
+                .Where(p => userIds.Contains(p.UserId))
+                .ToDictionaryAsync(p => p.UserId, p => p);
+
+            // Ensure every listed user has a row in UserPermissions (so admin can toggle easily)
+            var missing = userIds.Where(id => !perms.ContainsKey(id)).ToList();
+            if (missing.Any())
+            {
+                foreach (var id in missing)
+                {
+                    _context.UserPermissions.Add(new UserPermission { UserId = id, CanPostServices = false });
+                }
+                await _context.SaveChangesAsync();
+
+                perms = await _context.UserPermissions
+                    .Where(p => userIds.Contains(p.UserId))
+                    .ToDictionaryAsync(p => p.UserId, p => p);
+            }
+
+            var vm = users.Select(u => new ManageUserRowVm
+            {
+                Id = u.Id,
+                Email = u.Email,
+                UserName = u.UserName,
+                EmailConfirmed = u.EmailConfirmed,
+                CanPostServices = perms.TryGetValue(u.Id, out var up) && up.CanPostServices
+            }).ToList();
 
             ViewBag.TotalPages = totalPages;
             ViewBag.CurrentPage = page;
 
-            return View(users);
+            return View(vm);
         }
 
         //  CREATE 
@@ -170,7 +217,33 @@ namespace Local_Service_Manager.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        //DELETE 
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleCanPostServices(string id, bool value)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return NotFound();
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            var perm = await _context.UserPermissions.FirstOrDefaultAsync(p => p.UserId == id);
+            if (perm == null)
+            {
+                perm = new UserPermission { UserId = id, CanPostServices = value };
+                _context.UserPermissions.Add(perm);
+            }
+            else
+            {
+                perm.CanPostServices = value;
+                _context.UserPermissions.Update(perm);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+//DELETE 
         public async Task<IActionResult> Delete(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return NotFound();

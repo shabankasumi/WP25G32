@@ -1,0 +1,32 @@
+@model Local_Service_Manager.Models.Reservation
+@{
+    ViewData["Title"] = "Delete Reservation";
+}
+
+<div class="container py-3">
+    <h2>Delete Reservation</h2>
+    <div class="alert alert-warning">
+        This will permanently remove the reservation. This action cannot be undone.
+    </div>
+
+    <dl class="row">
+        <dt class="col-sm-3">User</dt>
+        <dd class="col-sm-9">@Model.User?.Email</dd>
+
+        <dt class="col-sm-3">Service</dt>
+        <dd class="col-sm-9">@Model.Service?.Name</dd>
+
+        <dt class="col-sm-3">Date</dt>
+        <dd class="col-sm-9">@Model.ReservationDate.ToString("yyyy-MM-dd")</dd>
+
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9">@Model.Status</dd>
+    </dl>
+
+    <form asp-action="Delete" method="post" class="d-flex gap-2">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-outline-light">Cancel</a>
+    </form>
+</div>

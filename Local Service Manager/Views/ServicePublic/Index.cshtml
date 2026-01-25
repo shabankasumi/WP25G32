@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Available Services";
     string fallbackImg = Url.Content("~/images/services/default.svg");
+    var categories = ViewBag.Categories as List<string> ?? new();
 }
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
@@ -16,31 +17,39 @@
     </div>
 </div>
 
-<form class="row g-2 mb-4" method="get">
-    <div class="col-md-4">
-        <input class="form-control" type="text" name="search" value="@ViewData["CurrentSearch"]" placeholder="Search services..." />
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-5">
+        <input type="text"
+               name="search"
+               value="@ViewData["CurrentSearch"]"
+               class="form-control"
+               placeholder="Search name or description..." />
     </div>
-    <div class="col-md-3">
-        <select class="form-select" name="category">
-            <option value="">All Categories</option>
-            <option value="Transport" selected="@(ViewData["CurrentCategory"]?.ToString()=="Transport")">Transport</option>
-            <option value="Maintenance" selected="@(ViewData["CurrentCategory"]?.ToString()=="Maintenance")">Maintenance</option>
-            <option value="Cleaning" selected="@(ViewData["CurrentCategory"]?.ToString()=="Cleaning")">Cleaning</option>
-        </select>
-    </div>
-    <div class="col-md-3">
-        <select class="form-select" name="sortOrder">
-            <option value="" selected="@(string.IsNullOrEmpty(ViewData["CurrentSort"]?.ToString()))">Sort: Name (A-Z)</option>
-            <option value="name_desc" selected="@(ViewData["CurrentSort"]?.ToString()=="name_desc")">Sort: Name (Z-A)</option>
-            <option value="date" selected="@(ViewData["CurrentSort"]?.ToString()=="date")">Sort: Created (oldest)</option>
-            <option value="date_desc" selected="@(ViewData["CurrentSort"]?.ToString()=="date_desc")">Sort: Created (newest)</option>
-        </select>
-    </div>
-    <div class="col-md-2">
-        <button class="btn btn-primary w-100" type="submit">Apply</button>
-    </div>
-</form>
 
+    <div class="col-md-4">
+        <select name="category" class="form-select">
+            <option value="">All Categories</option>
+            @foreach (var c in categories)
+            {
+                <option value="@c" selected="@((ViewData["CurrentCategory"] as string) == c ? "selected" : null)">
+                    @c
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-50">Filter</button>
+
+        <a asp-action="Index"
+           asp-controller="ServicePublic"
+           class="btn btn-outline-secondary w-50">
+            Clear
+        </a>
+    </div>
+
+    <input type="hidden" name="sortOrder" value="@ViewData["CurrentSort"]" />
+</form>
 <div class="row g-3">
     @foreach (var service in Model)
     {

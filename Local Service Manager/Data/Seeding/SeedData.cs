@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Local_Service_Manager.Data
+namespace Local_Service_Manager.Data.Seeding
 {
-    public class SeedData
+    public static class SeedData
     {
         public static async Task InitializeAsync(IServiceProvider services)
         {

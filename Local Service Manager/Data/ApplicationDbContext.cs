@@ -15,6 +15,17 @@ namespace Local_Service_Manager.Data
         // Këtu shtohen entity-t
         public DbSet<Service> Services { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
+        public DbSet<UserPermission> UserPermissions { get; set; }
+        public DbSet<ServicePermission> ServicePermissions { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<ServicePermission>()
+                .HasIndex(p => new { p.ServiceId, p.UserId })
+                .IsUnique();
+        }
 
         // Opsionale: Category ose Log
         // public DbSet<Category> Categories { get; set; }

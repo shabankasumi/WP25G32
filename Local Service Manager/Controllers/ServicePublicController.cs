@@ -52,6 +52,13 @@ public class ServicePublicController : Controller
 
         ViewBag.TotalPages = totalPages;
         ViewBag.CurrentPage = page;
+        ViewBag.Categories = await _context.Services
+    .Where(s => s.IsActive && !string.IsNullOrEmpty(s.Category))
+    .Select(s => s.Category)
+    .Distinct()
+    .OrderBy(c => c)
+    .ToListAsync();
+
 
         return View(services);
     }

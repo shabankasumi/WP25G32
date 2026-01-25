@@ -6,17 +6,32 @@
 
 <h2>Manage Services</h2>
 
-<form method="get">
-    <input type="text" name="search" value="@ViewData["CurrentSearch"]" placeholder="Search..." />
-    <select name="category">
-        <option value="">All Categories</option>
-        <option value="Transport">Transport</option>
-        <option value="Maintenance">Maintenance</option>
-        <option value="Cleaning">Cleaning</option>
-    </select>
-    <button type="submit">Filter</button>
+<form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-md-4">
+        <label class="form-label">Search</label>
+        <input class="form-control" type="text" name="search" value="@ViewData["CurrentSearch"]" placeholder="Name..." />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Category</label>
+        <select class="form-select" name="category">
+            <option value="" selected="@(string.IsNullOrEmpty((string?)ViewData["CurrentCategory"]) ? "selected" : null)">All</option>
+            <option value="Transport" selected="@(((string?)ViewData["CurrentCategory"])=="Transport" ? "selected" : null)">Transport</option>
+            <option value="Maintenance" selected="@(((string?)ViewData["CurrentCategory"])=="Maintenance" ? "selected" : null)">Maintenance</option>
+            <option value="Cleaning" selected="@(((string?)ViewData["CurrentCategory"])=="Cleaning" ? "selected" : null)">Cleaning</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <div class="form-check mt-4">
+            <input class="form-check-input" type="checkbox" name="onlyActive" value="true" id="onlyActive" @( (ViewData["OnlyActive"] is bool b && b) ? "checked" : null) />
+            <label class="form-check-label" for="onlyActive">Only Active</label>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Apply</button>
+    </div>
 </form>
- <a asp-action="Create" class="btn btn-success mb-3">Add Service</a>
+
+<a asp-action="Create" class="btn btn-success mb-3">Add Service</a>
 
 
 <table class="table">
@@ -38,6 +53,7 @@
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Permissions" asp-route-id="@item.Id">Permissions</a> |
                     <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                 </td>
             </tr>
@@ -54,7 +70,7 @@
         }
         else
         {
-            <a href="?page=@i&search=@ViewData["CurrentSearch"]&category=@ViewData["CurrentCategory"]">@i</a>
+            <a href="?page=@i&search=@ViewData["CurrentSearch"]&category=@ViewData["CurrentCategory"]&onlyActive=@ViewData["OnlyActive"]&sortOrder=@ViewData["CurrentSort"]">@i</a>
         }
     }
 </div>

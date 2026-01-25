@@ -1,0 +1,50 @@
+@model Local_Service_Manager.Models.ViewModels.ServicePermissionsVm
+@{
+    ViewData["Title"] = "Service Permissions";
+}
+
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+    <div>
+        <h2 class="mb-0">Service Permissions</h2>
+        <div class="text-muted small">@Model.ServiceName (ID: @Model.ServiceId)</div>
+    </div>
+    <a class="btn btn-outline-light" asp-action="AdminIndex">Back</a>
+</div>
+
+<form asp-action="Permissions" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ServiceId" />
+    <input type="hidden" asp-for="ServiceName" />
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th class="text-center">Can View</th>
+                    <th class="text-center">Can Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Users.Count; i++)
+                {
+                    <tr>
+                        <td>
+                            <input type="hidden" asp-for="Users[i].UserId" />
+                            <input type="hidden" asp-for="Users[i].Email" />
+                            <div class="fw-semibold">@Model.Users[i].Email</div>
+                        </td>
+                        <td class="text-center">
+                            <input class="form-check-input" type="checkbox" asp-for="Users[i].CanView" />
+                        </td>
+                        <td class="text-center">
+                            <input class="form-check-input" type="checkbox" asp-for="Users[i].CanEdit" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save permissions</button>
+</form>

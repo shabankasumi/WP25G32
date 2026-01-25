@@ -1,11 +1,13 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@model IEnumerable<IdentityUser>
+@model IEnumerable<Local_Service_Manager.Models.ViewModels.ManageUserRowVm>
 
 @{
     ViewData["Title"] = "Manage Users";
 
     var currentSearch = ViewData["CurrentSearch"] as string ?? "";
     var currentSort = ViewData["CurrentSort"] as string ?? "";
+    var currentEmailConfirmed = ViewData["CurrentEmailConfirmed"] as string ?? "";
+    var onlyWorkers = ViewData["OnlyWorkers"] is bool b && b;
 
     int currentPage = ViewBag.CurrentPage ?? 1;
     int totalPages = ViewBag.TotalPages ?? 1;
@@ -22,19 +24,30 @@
     <a class="btn btn-success" asp-action="Create">Create User</a>
 </div>
 
-<form method="get" class="row g-2 mb-3">
-    <div class="col-md-6">
-        <input name="search" value="@currentSearch" class="form-control"
-               placeholder="Search email or username..." />
+<form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-md-4">
+        <label class="form-label">Search</label>
+        <input name="search" value="@currentSearch" class="form-control" placeholder="Email or username..." />
     </div>
 
     <div class="col-md-3">
-        <button class="btn btn-primary w-100" type="submit">Search</button>
+        <label class="form-label">Email confirmed</label>
+        <select name="emailConfirmed" class="form-select">
+            <option value="" selected="@(string.IsNullOrEmpty(currentEmailConfirmed))">All</option>
+            <option value="confirmed" selected="@(currentEmailConfirmed=="confirmed")">Confirmed</option>
+            <option value="not" selected="@(currentEmailConfirmed=="not")">Not confirmed</option>
+        </select>
     </div>
 
     <div class="col-md-3">
-        <a class="btn btn-outline-secondary w-100"
-           asp-action="Index">Clear</a>
+        <div class="form-check mt-4">
+            <input class="form-check-input" type="checkbox" name="onlyWorkers" value="true" id="onlyWorkers" @(onlyWorkers ? "checked" : null) />
+            <label class="form-check-label" for="onlyWorkers">Only workers</label>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100" type="submit">Apply</button>
     </div>
 
     <input type="hidden" name="sortOrder" value="@currentSort" />
@@ -46,6 +59,8 @@
             <th>
                 <a asp-action="Index"
                    asp-route-search="@currentSearch"
+                   asp-route-emailConfirmed="@currentEmailConfirmed"
+                   asp-route-onlyWorkers="@onlyWorkers"
                    asp-route-sortOrder="@ViewData["EmailSort"]"
                    asp-route-page="1">
                     Email
@@ -54,23 +69,36 @@
             <th>
                 <a asp-action="Index"
                    asp-route-search="@currentSearch"
+                   asp-route-emailConfirmed="@currentEmailConfirmed"
+                   asp-route-onlyWorkers="@onlyWorkers"
                    asp-route-sortOrder="@ViewData["UserNameSort"]"
                    asp-route-page="1">
                     Username
                 </a>
             </th>
             <th>Email Confirmed</th>
+            <th>Can Post Services (Worker)</th>
             <th class="text-end">Actions</th>
         </tr>
     </thead>
 
     <tbody>
-    @foreach (var u in Model ?? Enumerable.Empty<IdentityUser>())
+    @foreach (var u in Model ?? Enumerable.Empty<Local_Service_Manager.Models.ViewModels.ManageUserRowVm>())
     {
         <tr>
             <td>@u.Email</td>
             <td>@u.UserName</td>
             <td>@u.EmailConfirmed</td>
+            <td>
+                <form asp-action="ToggleCanPostServices" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@u.Id" />
+                    <input type="hidden" name="value" value="@(u.CanPostServices ? "false" : "true")" />
+                    <button type="submit" class="btn btn-sm @(u.CanPostServices ? "btn-success" : "btn-outline-secondary")">
+                        @(u.CanPostServices ? "Yes" : "No")
+                    </button>
+                </form>
+            </td>
             <td class="text-end">
                 <a class="btn btn-sm btn-warning"
                    asp-action="Edit"
@@ -93,6 +121,8 @@
                 <a class="page-link"
                    asp-action="Index"
                    asp-route-search="@currentSearch"
+                   asp-route-emailConfirmed="@currentEmailConfirmed"
+                   asp-route-onlyWorkers="@onlyWorkers"
                    asp-route-sortOrder="@currentSort"
                    asp-route-page="@(currentPage - 1)">Prev</a>
             </li>
@@ -103,6 +133,8 @@
                     <a class="page-link"
                        asp-action="Index"
                        asp-route-search="@currentSearch"
+                       asp-route-emailConfirmed="@currentEmailConfirmed"
+                       asp-route-onlyWorkers="@onlyWorkers"
                        asp-route-sortOrder="@currentSort"
                        asp-route-page="@p">@p</a>
                 </li>
@@ -112,6 +144,8 @@
                 <a class="page-link"
                    asp-action="Index"
                    asp-route-search="@currentSearch"
+                   asp-route-emailConfirmed="@currentEmailConfirmed"
+                   asp-route-onlyWorkers="@onlyWorkers"
                    asp-route-sortOrder="@currentSort"
                    asp-route-page="@(currentPage + 1)">Next</a>
             </li>
